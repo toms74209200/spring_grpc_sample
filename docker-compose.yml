@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  grpc-server:
+    image: maven:3-jdk-11
+    volumes:
+      - ./server:/usr/local/grpc-server
+      - $HOME/.m2:/root/.m2
+    working_dir: /usr/local/grpc-server
+    command: /bin/sh -c "mvn clean package install"
+
+  grpc-client:
+    image: maven:3-jdk-11
+    volumes:
+      - ./client:/usr/local/grpc-client
+      - $HOME/.m2:/root/.m2
+    working_dir: /usr/local/grpc-client
+    command: /bin/sh -c "mvn clean package install"

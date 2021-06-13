@@ -2,3 +2,4 @@ grpc:
   client:
     HelloService:
       address: static://localhost:8080
+      negotiationType: PLAINTEXT

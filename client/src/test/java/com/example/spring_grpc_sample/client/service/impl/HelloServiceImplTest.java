@@ -1,5 +1,9 @@
 package com.example.spring_grpc_sample.client.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.example.spring_grpc_sample.client.service.HelloService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -7,24 +11,18 @@ import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
+import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 public class HelloServiceImplTest {
 
     private static final int SERVER_PORT = 8080;
 
-    @Autowired
-    private HelloService helloService;
+    @Autowired private HelloService helloService;
 
     private Server serverMock;
 
@@ -32,20 +30,22 @@ public class HelloServiceImplTest {
     public void tearDown() throws Exception {
         serverMock.shutdown();
         serverMock.awaitTermination();
+        Thread.sleep(1000);
     }
 
     @Test
     public void testReceiveGreetingSuccess() throws Exception {
-        GreeterGrpc.GreeterImplBase greeterMock = new GreeterGrpc.GreeterImplBase() {
-            @Override
-            public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
-                HelloReply reply = HelloReply.newBuilder()
-                        .setMessage(request.getName())
-                        .build();
-                responseObserver.onNext(reply);
-                responseObserver.onCompleted();
-            }
-        };
+        GreeterGrpc.GreeterImplBase greeterMock =
+                new GreeterGrpc.GreeterImplBase() {
+                    @Override
+                    public void sayHello(
+                            HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+                        HelloReply reply =
+                                HelloReply.newBuilder().setMessage(request.getName()).build();
+                        responseObserver.onNext(reply);
+                        responseObserver.onCompleted();
+                    }
+                };
 
         startServer(greeterMock);
 
@@ -62,25 +62,20 @@ public class HelloServiceImplTest {
 
     @Test
     public void testReceiveGreetingNoReply() throws Exception {
-        GreeterGrpc.GreeterImplBase greeterMock = new GreeterGrpc.GreeterImplBase() {
-            @Override
-            public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {}
-        };
+        GreeterGrpc.GreeterImplBase greeterMock =
+                new GreeterGrpc.GreeterImplBase() {
+                    @Override
+                    public void sayHello(
+                            HelloRequest request, StreamObserver<HelloReply> responseObserver) {}
+                };
 
         startServer(greeterMock);
 
-        assertThrows(
-                Exception.class,
-                () -> helloService.receiveGreeting("test")
-        );
+        assertThrows(Exception.class, () -> helloService.receiveGreeting("test"));
     }
 
     private void startServer(GreeterGrpc.GreeterImplBase greeter) throws IOException {
-        serverMock = ServerBuilder
-                .forPort(SERVER_PORT)
-                .addService(greeter)
-                .build();
+        serverMock = ServerBuilder.forPort(SERVER_PORT).addService(greeter).build();
         serverMock.start();
     }
-
 }

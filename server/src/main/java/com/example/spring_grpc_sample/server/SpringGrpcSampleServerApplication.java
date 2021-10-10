@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringGrpcSampleServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringGrpcSampleServerApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(SpringGrpcSampleServerApplication.class, args);
+    }
 }
